@@ -1,0 +1,9 @@
+{
+    "name": "DiagDump",
+    "version_number": "1.0.0",
+    "website_url": "https://github.com/max-enterme/repo-mods",
+    "description": "Diagnostic dump tool for R.E.P.O. modding. Logs game object structures, Harmony patches, and ShopManager state.",
+    "dependencies": [
+        "BepInEx-BepInExPack-5.4.2100"
+    ]
+}
