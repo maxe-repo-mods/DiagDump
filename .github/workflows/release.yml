@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build
+        run: dotnet build -c Release
+
+      - name: Extract version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Package
+        run: |
+          mkdir -p package/BepInEx/plugins
+          cp bin/Release/netstandard2.1/*.dll package/BepInEx/plugins/
+          cp manifest.json icon.png README.md package/
+          cd package && zip -r "../${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip" .
+
+      - name: Upload to Thunderstore
+        uses: GreenTF/upload-thunderstore-package@v4
+        with:
+          token: ${{ secrets.THUNDERSTORE_TOKEN }}
+          community: repo
+          namespace: maxenterme
+          name: ${{ github.event.repository.name }}
+          version: ${{ steps.version.outputs.version }}
+          file: ${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip
