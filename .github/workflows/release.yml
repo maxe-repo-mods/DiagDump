@@ -32,18 +32,23 @@ jobs:
           cd package && zip -r ../${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip .
 
       - name: Upload to Thunderstore
-        uses: GreenTF/upload-thunderstore-package@v4
-        with:
-          token: ${{ secrets.THUNDERSTORE_TOKEN }}
-          community: repo
-          namespace: maxenterme
-          name: ${{ github.event.repository.name }}
-          version: ${{ steps.version.outputs.version }}
-          description: "Diagnostic dump tool for R.E.P.O. modding."
-          categories: "tools"
-          deps: "BepInEx-BepInExPack-5.4.2100"
-          website: "https://github.com/maxe-repo-mods/${{ github.event.repository.name }}"
-          file: ${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip
+        env:
+          TS_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+        run: |
+          ZIP="${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip"
+          METADATA='{"author_name":"maxenterme","communities":["repo"],"has_nsfw_content":false,"community_categories":{"repo":["tools"]}}'
+          echo "Uploading $ZIP with metadata: $METADATA"
+          RESULT=$(curl -sS -X POST \
+            "https://thunderstore.io/api/experimental/submission/upload/" \
+            -H "Authorization: Bearer $TS_TOKEN" \
+            -F "file=@$ZIP" \
+            -F "metadata=$METADATA")
+          echo "Result: $RESULT"
+          # Fail if error
+          if echo "$RESULT" | jq -e '.detail // .file // .metadata // .errors' > /dev/null 2>&1; then
+            echo "::error::Thunderstore upload failed"
+            exit 1
+          fi
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v2
