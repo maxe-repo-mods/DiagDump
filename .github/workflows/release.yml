@@ -24,12 +24,10 @@ jobs:
         id: version
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
-      - name: Prepare upload
+      - name: Package
         run: |
-          mkdir -p upload
-          cp bin/Release/netstandard2.1/*.dll upload/
           mkdir -p package/BepInEx/plugins
-          cp upload/*.dll package/BepInEx/plugins/
+          cp bin/Release/netstandard2.1/*.dll package/BepInEx/plugins/
           cp manifest.json icon.png README.md package/
           cd package && zip -r ../${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip .
 
@@ -41,12 +39,11 @@ jobs:
           namespace: maxenterme
           name: ${{ github.event.repository.name }}
           version: ${{ steps.version.outputs.version }}
-          description: "Diagnostic dump tool for R.E.P.O. modding. Logs game object structures, Harmony patches, and ShopManager state."
+          description: "Diagnostic dump tool for R.E.P.O. modding."
           categories: "tools"
           deps: "BepInEx-BepInExPack-5.4.2100"
-          path: upload/
-          wrap: "BepInEx/plugins"
           website: "https://github.com/maxe-repo-mods/${{ github.event.repository.name }}"
+          file: ${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v2
