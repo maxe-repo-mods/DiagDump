@@ -6,7 +6,7 @@ using HarmonyLib;
 
 namespace DiagDump;
 
-[BepInPlugin("maxenterme.DiagDump", "DiagDump", "4.0.3")]
+[BepInPlugin("maxenterme.DiagDump", "DiagDump", "4.0.4")]
 public class Plugin : BaseUnityPlugin
 {
     internal static Plugin Instance = null!;

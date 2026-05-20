@@ -36,7 +36,7 @@ jobs:
           TS_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
         run: |
           ZIP="${{ github.event.repository.name }}-${{ steps.version.outputs.version }}.zip"
-          METADATA='{"author_name":"maxenterme","communities":["repo"],"has_nsfw_content":false,"community_categories":{"repo":["tools"]}}'
+          METADATA='{"author_name":"maxenterme","communities":["repo"],"has_nsfw_content":false,"community_categories":{"repo":["ai-generated","tools"]}}'
           echo "Uploading $ZIP with metadata: $METADATA"
           RESULT=$(curl -sS -X POST \
             "https://thunderstore.io/api/experimental/submission/upload/" \
