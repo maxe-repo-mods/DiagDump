@@ -6,7 +6,7 @@ using HarmonyLib;
 
 namespace DiagDump;
 
-[BepInPlugin("maxenterme.DiagDump", "DiagDump", "4.0.5")]
+[BepInPlugin("maxenterme.DiagDump", "DiagDump", "4.0.6")]
 public class Plugin : BaseUnityPlugin
 {
     internal static Plugin Instance = null!;
@@ -55,11 +55,24 @@ public class Plugin : BaseUnityPlugin
 public static class TestPatch
 {
     private static bool _dumped;
+    private static bool _itemsDumped;
 
     [HarmonyPatch(typeof(RoundDirector), "Update")]
     [HarmonyPostfix]
     private static void Update_PurePostfix()
     {
+        // itemDictionary is empty in the truck/lobby and only populated once a
+        // level loads. Retry every frame until it has keys, then dump once.
+        if (!_itemsDumped)
+        {
+            var stats = StatsManager.instance;
+            if (stats != null && stats.itemDictionary != null && stats.itemDictionary.Count > 0)
+            {
+                DumpItemDictionary();
+                _itemsDumped = true;
+            }
+        }
+
         if (_dumped) return;
         _dumped = true;
 
@@ -80,8 +93,7 @@ public static class TestPatch
             DumpPatches(typeof(SemiFunc), "OnSceneSwitch");
             DumpPatches(typeof(ItemAttributes), "GetValue");
 
-            // 1b. Dump itemDictionary keys
-            DumpItemDictionary();
+            // (itemDictionary is dumped separately above, once it is populated)
 
             // 2. Assembly scan
             Plugin.Log("=== ASSEMBLY SCAN ===");

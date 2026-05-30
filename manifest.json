@@ -1,6 +1,6 @@
 {
   "name": "DiagDump",
-  "version_number": "4.0.5",
+  "version_number": "4.0.6",
   "website_url": "https://github.com/maxe-repo-mods/DiagDump",
   "description": "Diagnostic dump tool for R.E.P.O. modding. Logs game object structures, Harmony patches, and ShopManager state.",
   "dependencies": [
