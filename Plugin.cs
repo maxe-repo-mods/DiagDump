@@ -6,7 +6,7 @@ using HarmonyLib;
 
 namespace DiagDump;
 
-[BepInPlugin("maxenterme.DiagDump", "DiagDump", "4.0.4")]
+[BepInPlugin("maxenterme.DiagDump", "DiagDump", "4.0.5")]
 public class Plugin : BaseUnityPlugin
 {
     internal static Plugin Instance = null!;
@@ -79,6 +79,9 @@ public static class TestPatch
             DumpPatches(typeof(EnemyDirector), "AmountSetup");
             DumpPatches(typeof(SemiFunc), "OnSceneSwitch");
             DumpPatches(typeof(ItemAttributes), "GetValue");
+
+            // 1b. Dump itemDictionary keys
+            DumpItemDictionary();
 
             // 2. Assembly scan
             Plugin.Log("=== ASSEMBLY SCAN ===");
@@ -187,6 +190,28 @@ public static class TestPatch
             var child = obj.transform.GetChild(i);
             if (child.gameObject.activeInHierarchy)
                 DumpObject(child.gameObject, depth + 1, maxDepth);
+        }
+    }
+
+    private static void DumpItemDictionary()
+    {
+        try
+        {
+            var stats = StatsManager.instance;
+            if (stats == null || stats.itemDictionary == null)
+            {
+                Plugin.LogWarn("=== ITEM DICTIONARY: StatsManager/itemDictionary null ===");
+                return;
+            }
+
+            Plugin.Log($"=== ITEM DICTIONARY ({stats.itemDictionary.Count} keys) ===");
+            foreach (var key in stats.itemDictionary.Keys.OrderBy(k => k))
+                Plugin.Log($"  ITEMKEY: '{key}'");
+            Plugin.Log("=== ITEM DICTIONARY END ===");
+        }
+        catch (Exception e)
+        {
+            Plugin.LogErr($"DumpItemDictionary: {e}");
         }
     }
 
